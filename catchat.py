@@ -45,9 +45,10 @@ class User(Resource):
         return a, 200
 
 class UserList(Resource):
+    # UserList를 보는 class
     def get(self):
         return USERS
-
+    # get method를 받으면 users 전체 리스트를 리턴해준다.
     def post(self):
         args = parser.parse_args()
         user_id = int(max(USERS.keys()).lstrip('user')) + 1
