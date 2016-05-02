@@ -22,7 +22,7 @@ parser.add_argument('name')
 parser.add_argument('id')
 parser.add_argument('email')
 parser.add_argument('password')
-
+# only user side not add userlist
 class user(Resource):
     def get(self, user_id):
         user_not_exist(user_id)
