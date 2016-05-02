@@ -5,6 +5,7 @@ from flask_restful import reqparse, abort, Api, Resource
 # flask_restful모듈에서 reqparse, abort, Api, Resource라는 모듈을 삽입
 app = Flask(__name__)
 api = Api(app)
+# 심플코드 연습용
 
 USERS = {
     'user1' : {'email': 'hello@naver.com', 'password' : '1234'},
