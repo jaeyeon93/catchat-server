@@ -45,8 +45,30 @@ class user(Resource):
         users[user_id] = user_upload
         return user_id, 200
 
+class userlist(Resource):
 
+    def get(self):
+        return users
+
+    def post(self):
+        args = parser.parse_args()
+
+        user_id = int(max(users.keys()).lstrip('user')) + 1
+        user_id = 'user%i' % user_id
+        users[user_id] = {'name' : args['name'],
+                          'id' : args['id'],
+                          'email' : args['email'],
+                          'password' : args['password']
+                          }
+        a = {}
+        a['name'] = args['name']
+        a['id'] = args['id']
+        a['email'] = args['email']
+        a['password'] = args['password']
+
+        users[user_id] = a
+        return a, 200
 api.add_resource(user, '/api/v1/users/<user_id>')
-
+api.add_resource(userlist, '/users')
 if __name__ == '__main__':
     app.run(debug=True)

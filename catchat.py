@@ -8,6 +8,7 @@ app = Flask(__name__)
 api = Api(app)
 # api instance생성
 # Api는 class flask_restful.Api이다.
+# class flask_restful.Api , flask앱을 실행시킬때 필요. init_app()으로 대체할 수 있다.
 
 USERS = {
     'user1' : {'email': 'hello@naver.com', 'password' : '1234'},
@@ -22,17 +23,19 @@ def user_not_exist(user_id):
         abort(404, message="User {} doesn't exist".format(user_id))
         # abort함수는 http예외를 주어진 http-protocol값으로 일부러 오류를 발생시키는거다.
         # 만약에 USERS에 user_id가 없으면 404 http오류를 발생시킨다. 그리고 user <user_id> doesn't exist라는 메세지를 띄운다.
-
+# parser는 인터프리터에서 코드를 읽어들여 그 문장의 구조를 알아내는 구문분석을 한다.
+# class reqparse.RequestParse() 은 여러개의 argument를 adding하고 parsing할 수 있게해준다.
 parser = reqparse.RequestParser()
 # parser는 reqparse클래스에서 RequestParse라는 함수를 호출한 객체?인스턴스?
 parser.add_argument('email')
-# 'email'이라는 인수를 추가한다.
+# 'email'이라는 인수를 추가한다., add_argumnet(*args, **kwargs) : adds argument to be parsed
 parser.add_argument('password')
 # password라는 인수를 추가한다.
 
 class User(Resource):
     # User Class인데 이부분은 User전체가 아닌 user_id 개개인적인 부분에 대해서 작동. 전체가 아닌 하나에대해서 get, delete, put을 한다.
     # User class에 Resource를 상속했다. Resource는 추상적인 RESTful resource를 대표한다.?
+    # resource(*urls, **kwargs) : Wraps a Resouce class, adding it to the api.
     def get(self, user_id):
         user_not_exist(user_id)
         return USERS[user_id]
@@ -95,8 +98,8 @@ class UserList(Resource):
         # a 딕셔너리를 리턴해주고, http 200을 리턴해준다.
 
 
-api.add_resource(UserList, 'api/v1/Users')
-# add_resource는 api에 resource를 추가를 하는것이다. UserList를 추가하고, localhost:5000/api/vi/Users라는 라우트를 살정
+api.add_resource(UserList, '/Users')
+# add_resource는 api에 resource를 추가를 하는것이다. UserList를 추가하고, localhost:5000/Users라는 라우트를 살정
 api.add_resource(User, '/api/v1/users/<user_id>')
 # User resouce를 추가하고, /api/v1/users/<user_id>라는 라우트를 설정
 
