@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 from flask import Flask
+
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
 # flask module에서 Flask모듈을 삽입? 임포트
 from flask_restful import reqparse, abort, Api, Resource
 # flask_restful모듈에서 reqparse, abort, Api, Resource라는 모듈을 삽입
@@ -10,11 +14,30 @@ api = Api(app)
 # Api는 class flask_restful.Api이다.
 # class flask_restful.Api , flask앱을 실행시킬때 필요. init_app()으로 대체할 수 있다.
 
-USERS = {
-    'user1' : {'email': 'hello@naver.com', 'password' : '1234'},
-    'user2' : {'email': 'world@naver.com', 'password': '5678'},
-    'user3' : {'email': 'jaeyeon@naver.com', 'password': '12345'}
-}
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:12345@localhost/catchat'
+db = SQLAlchemy(app)
+
+@app.route('/user/<email>')
+def show_email(email):
+    email = Users.query.filter_by(email=email).first()
+    return email
+class Users(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    password = db.Column(db.String(80), unique=True)
+    email = db.Column(db.String(120), unique=True)
+
+    def __init__(self, email, password):
+        self.password = password
+        self.email = email
+
+    def __repr__(self):
+        return '<Users %r>' % self.username
+
+# USERS = {
+#     'user1' : {'email': 'hello@naver.com', 'password' : '1234'},
+#     'user2' : {'email': 'world@naver.com', 'password': '5678'},
+#     'user3' : {'email': 'jaeyeon@naver.com', 'password': '12345'}
+# }
 # USERS라는 딕셔너리를 생성을 하고, key값으로 user1,user2,user3...을 주고, value값으로 새로운 딕셔너리를 생성. 새로운 딕셔너리의 key값은 email, password이다.
 
 def user_not_exist(user_id):
@@ -74,27 +97,33 @@ class UserList(Resource):
         # post method를 호출.
         args = parser.parse_args()
         # class parser에 있는 parse_args()함수를 호출을 해서, 요청된 응답에 대해서 모든 인수들을 분석하고, 결과값을 args에 리턴해준다.
-        user_id = int(max(USERS.keys()).lstrip('user')) + 1
+        # user_id = int(max(USERS.keys()).lstrip('user')) + 1
         # USERS.keys()는 USERS딕셔너리의 key값들을 모아서 dict_keys라는 객체를 리턴한다.
         # USERS 딕셔너리의 key값들은 user1, user2, user3 ... 으로 user들의 숫자가 붙은 값이다.
         # max(USERS.keys())는 리턴받은 리스트중에서 가장큰(가장나중?)에 있는 요소를 리턴을 해준다. 예를 들어 user5까지 있다면 user5를 리턴.
         # lstrip('')은 ''사이에 있는 문자열을 제거를 해주는 역할이다. max(USERS.keys()).lstrip('user')는 user5를 리턴받았을때 user라는 문자열부분을 제거하라는 뜻.
         # user5에서 user문자열을 제거를 하면 5가 남지만, 5는 문자열이기때문에 앞에 int('5')를 통해 문자열 5를 정수형 5로 바꿔준다.
         # 정수형 5가 리턴이 되고 거기에 +1을 더해서 정수형 6을 만든다. 정수형 6을 user_id에 대입한다.
-        user_id = 'user%i' % user_id
+        # user_id = 'user%i' % user_id
         # 이전줄의 user_id는 정수6이다. 'user%i' % user_id에서 i자리에 user_id값을 입력받으니 'user6'이다. 이것을 다시 user_id에 대입한다.
         # 여기 i를 처음에 number로 했다가 문제가 됬다.
-        USERS[user_id] = {'email': args['email'], 'password' : args['password']}
+        # USERS[user_id] = {'email': args['email'], 'password' : args['password']}
         # 딕셔너리 USERS의 key값 user_id는 value로 딕셔너리를 받고, value의 key값은 'email', 'password'다.
-        a = {}
+        # a = {}
         # a 라는 빈 딕셔너리를 생성
-        a['email'] = args['email']
+        # a['email'] = args['email']
         # a의 key값은 'email'이고 value는 입력받은 email값이다.
-        a['password'] = args['password']
+        # a['password'] = args['password']
         # a의 key값은 password이고 입력받은 password가 value값이다. 입력받은 value값을 a딕셔너리의 'password' key의 value로 대입
-        USERS[user_id] = a
+        # USERS[user_id] = a
+
+        new_user = Users(args['email'], args['password'])
+        new_user_id = db.session.add(new_user)
+
+        db.session.commit()
+
         # USERS['user6'] 딕셔너리의 value값은 a 딕셔너리이다.
-        return a, 200
+        return new_user_id, 200
         # a 딕셔너리를 리턴해주고, http 200을 리턴해준다.
 
 

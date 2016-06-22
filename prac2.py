@@ -23,11 +23,12 @@ parser.add_argument('id')
 parser.add_argument('email')
 parser.add_argument('password')
 # only user side not add userlist
+
 class user(Resource):
     def get(self, user_id):
         user_not_exist(user_id)
-        return users(user_id)
-
+        return users[user_id]
+        # 여기 주의하자. users(user_id)로 했었다가 오류. () [] 구분
     def delete(self, user_id):
         user_not_exist(user_id)
         del users[user_id]
